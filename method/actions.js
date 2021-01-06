@@ -21,7 +21,7 @@ var functions = {
                 if (err){
                     if (err.name === 'MongoError' && err.code === 11000) {
                         // Duplicate username
-                        return res.status(422).send({ succes: false, message: 'User already exist! Try diffrent username or email' });
+                        return res.status(422).send({ succes: false, msg: 'User already exist! Try diffrent email' });
                       }
                     else{
                         res.json({
