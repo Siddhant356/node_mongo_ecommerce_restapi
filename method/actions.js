@@ -19,10 +19,16 @@ var functions = {
             });
             newUser.save(function(err,newUser){
                 if (err){
-                    res.json({
+                    if (err.name === 'MongoError' && err.code === 11000) {
+                        // Duplicate username
+                        return res.status(422).send({ succes: false, message: 'User already exist! Try diffrent username or email' });
+                      }
+                    else{
+                        res.json({
                         success: false,
-                        msg: 'Faild to save'
-                    })   
+                        msg: `Faild to save`
+                        })
+                    }   
                 }
                 else{
                     res.json({
