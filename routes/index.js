@@ -1,9 +1,10 @@
 const express = require('express')
 const actions = require('../method/actions')
 const router = express.Router()
+const checkAuth = require('../middleware/check_auth')
 
 router.get('/', (req,res)=> {
-    res.send('Hello World!!!!')
+    res.send('It\'s up and running!!')
 })
 
 router.get('/dashboard', (req, res)=>{
@@ -17,6 +18,7 @@ router.post('/adduser', actions.addNew)
 router.post('/authenticate', actions.authenticate)
 
 //@desc Get info on the user
-router.get('/getinfo', actions.getinfo)
+router.get('/getinfo', checkAuth, actions.getinfo)
+
 
 module.exports = router

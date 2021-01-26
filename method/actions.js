@@ -1,5 +1,5 @@
 var User = require('../models/user')
-var jwt = require('jwt-simple')
+var jwt = require('jsonwebtoken')
 var config = require('../config/dbconfig')
 
 var functions = {
@@ -21,12 +21,15 @@ var functions = {
                 if (err){
                     if (err.name === 'MongoError' && err.code === 11000) {
                         // Duplicate username
-                        return res.status(422).send({ succes: false, msg: 'User already exist! Try diffrent email' });
+                        return res.status(422)
+                        .send({ 
+                            succes: false, 
+                            msg: 'User already exist! Try diffrent email' });
                       }
                     else{
                         res.json({
                         success: false,
-                        msg: `Faild to save`
+                        msg: err.message
                         })
                     }   
                 }
@@ -50,28 +53,30 @@ var functions = {
             else {
                 user.comparePassword(req.body.password, function(err, isMatch){
                     if(isMatch && !err){
-                        var token =jwt.encode(user, config.secret)
+                       var token = jwt.sign({
+                           name: user.name,
+                            email: user.email,
+                            userId: user._id
+                        }, 
+                        config.secret,
+                        )
                         res.json({
                             success:true,
                             token: token
                         })
                     }
                     else{
-                        return res.status(403).send({success: false, msg: 'Authentication Failed, wrong password!'})
+                        return res.status(403).send({
+                            success: false, 
+                            msg: 'Authentication Failed, wrong password!'
+                        })
                     }
                 })
             }
         })
     },
     getinfo: function(req, res){
-        if(req.headers.authorization && req.headers.authorization.split(' ')[0]==='Bearer'){
-            var token = req.headers.authorization.split(' ')[1]
-            var decodedtoken = jwt.decode(token, config.secret)
-            return res.json({success: true,  msg: `Hello ${decodedtoken.name}`})
-        }
-        else{
-            return res.json({success: false, msg: `No Headers`})
-        }
+            res.json({success: true,  msg: `Hello ${req.userData.name}`})
     }
 }
 
